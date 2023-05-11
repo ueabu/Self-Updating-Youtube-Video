@@ -121,16 +121,16 @@ def youtube_authenticate():
             # flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, SCOPES)
             # creds = flow.run_local_server(port=0)
         # save the credentials for the next run
-        # with open("token.pickle", "wb") as token:
-        #     pickle.dump(creds, token)
+        with open("token.pickle", "wb") as token:
+            pickle.dump(creds, token)
 
     return build(api_service_name, api_version, credentials=creds)
 
 
 
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
-# scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
+# scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
+scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
 scheduler.start()
 
 if __name__ == '__main__':
