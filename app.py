@@ -129,8 +129,8 @@ def youtube_authenticate():
 
 
 scheduler = BackgroundScheduler(daemon=True)
-# scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
-scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
+scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
+# scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
 scheduler.start()
 
 if __name__ == '__main__':
