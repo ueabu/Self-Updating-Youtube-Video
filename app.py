@@ -54,8 +54,8 @@ def authenticate():
   # youtube = youtube_authenticate()
   return "Authenticated"
 
-@app.route('/callback')
-def authenticate():
+@app.route('/oauth2callback')
+def callback():
   args = argparser.parse_args()
   youtube = get_authenticated_service(args)
   # youtube = youtube_authenticate()
