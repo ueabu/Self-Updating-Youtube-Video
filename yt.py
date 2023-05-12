@@ -78,11 +78,11 @@ if __name__ == "__main__":
   # argparser.add_argument("--file", required=True,
   #   help="Path to thumbnail image file.")
   args = argparser.parse_args()
-
+  
   print(args)
 
-  if not os.path.exists(args.file):
-    exit("Please specify a valid file using the --file= parameter.")
+  # if not os.path.exists(args.file):
+  #   exit("Please specify a valid file using the --file= parameter.")
 
   youtube = get_authenticated_service(args)
   try:
