@@ -49,17 +49,17 @@ def sendCurrentImage():
 
 @app.route('/authenticate')
 def authenticate():
-  args = argparser.parse_args()
-  youtube = get_authenticated_service(args)
-  # youtube = youtube_authenticate()
+  # args = argparser.parse_args()
+  # youtube = get_authenticated_service(args)
+  youtube = youtube_authenticate()
   return "Authenticated"
 
-@app.route('/oauth2callback')
-def callback():
-  args = argparser.parse_args()
-  youtube = get_authenticated_service(args)
-  # youtube = youtube_authenticate()
-  return "Authenticated"
+# @app.route('/oauth2callback')
+# def callback():
+#   args = argparser.parse_args()
+#   # youtube = get_authenticated_service(args)
+#   youtube = youtube_authenticate()
+#   return "Authenticated"
 
 @app.route('/adhoc')
 def run_update_method():
@@ -140,43 +140,43 @@ def update_view_count_and_thumbnail():
   return update_responses
 
 
-# def youtube_authenticate():
-#     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-#     api_service_name = "youtube"
-#     api_version = "v3"
-#     creds = None
-#     # the file token.pickle stores the user's access and refresh tokens, and is
-#     # created automatically when the authorization flow completes for the first time
-#     if os.path.exists("token.pickle"):
-#         with open("token.pickle", "rb") as token:
-#             creds = pickle.load(token)
-#     # if there are no (valid) credentials availablle, let the user log in.
-#     if not creds or not creds.valid:
-#         if creds and creds.expired and creds.refresh_token:
-#             creds.refresh(Request())
-#         else:
-#             # raise Exception("Renew Credentials")
-#             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-#             creds = flow.run_local_server(port=0)
-#         # save the credentials for the next run
-#         with open("token.pickle", "wb") as token:
-#             pickle.dump(creds, token)
+def youtube_authenticate():
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    api_service_name = "youtube"
+    api_version = "v3"
+    creds = None
+    # the file token.pickle stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first time
+    if os.path.exists("token.pickle"):
+        with open("token.pickle", "rb") as token:
+            creds = pickle.load(token)
+    # if there are no (valid) credentials availablle, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            # raise Exception("Renew Credentials")
+            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+            creds = flow.run_local_server(port=0)
+        # save the credentials for the next run
+        with open("token.pickle", "wb") as token:
+            pickle.dump(creds, token)
 
-#     return build(api_service_name, api_version, credentials=creds)
+    return build(api_service_name, api_version, credentials=creds)
 
-def get_authenticated_service(args):
-  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-    scope=YOUTUBE_READ_WRITE_SCOPE,
-    message="Client secrets file is missing")
+# def get_authenticated_service(args):
+#   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
+#     scope=YOUTUBE_READ_WRITE_SCOPE,
+#     message="Client secrets file is missing")
 
-  storage = Storage("%s-oauth2.json" % sys.argv[0])
-  credentials = storage.get()
+#   storage = Storage("%s-oauth2.json" % sys.argv[0])
+#   credentials = storage.get()
 
-  if credentials is None or credentials.invalid:
-    credentials = run_flow(flow, storage, args)
+#   if credentials is None or credentials.invalid:
+#     credentials = run_flow(flow, storage, args)
 
-  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-    http=credentials.authorize(httplib2.Http()))
+#   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+#     http=credentials.authorize(httplib2.Http()))
 
 
 scheduler = BackgroundScheduler(daemon=True)
