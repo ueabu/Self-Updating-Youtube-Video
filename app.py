@@ -2,6 +2,7 @@
 # Description - This file contains the main application code for the Flask app
 
 import flask
+from flask import send_file
 import requests
 from googleapiclient.http import MediaFileUpload
 import urllib.parse as p
@@ -20,12 +21,21 @@ CLIENT_SECRETS_FILE = "credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
-
 YOUTUBE_VIDEO_ID = "fLlQ2w1gOEM"
+GENERATED_THUMBNAIL_FILE_NAME = "generated_thumbnail.png"
 
 @app.route('/up')
 def hello():
     return "Hello World! Service is Up and Running!"
+
+@app.route('/currentimage')
+def sendCurrentImage():
+    return send_file(GENERATED_THUMBNAIL_FILE_NAME, mimetype='image/gif')
+
+@app.route('/authenticate')
+def authenticate():
+    youtube = youtube_authenticate();
+    return "Authenticated"
 
 # Gets the video view count from youtube
 def get_video_view_count():
@@ -49,7 +59,7 @@ def generate_new_thumbnail(no_of_views):
     image_editable = ImageDraw.Draw(thumbnail_template) # Make the image editable
     _, _, textbox_width, textbox_height = image_editable.textbbox((0, 0), views_count_string, font=title_font)
     image_editable.text(((image_width-textbox_width)/2, 75), views_count_string, (255, 255, 255), font=title_font)# Draw the text
-    thumbnail_template.save("generated_thumbnail.png") # Save the image
+    thumbnail_template.save(GENERATED_THUMBNAIL_FILE_NAME) # Save the image
     print('Thumbnail generated successfully')
 
 # Get Video Description from a text file
@@ -82,7 +92,7 @@ def update_view_count_and_thumbnail():
 
   # thumbnail_update_request = youtube.thumbnails().set(
   #   videoId=YOUTUBE_VIDEO_ID,
-  #   media_body=MediaFileUpload("generated_thumbnail.png")
+  #   media_body=MediaFileUpload(GENERATED_THUMBNAIL_FILE_NAME)
   # )
     
   # thumbnail_update_response = thumbnail_update_request.execute()
@@ -117,9 +127,9 @@ def youtube_authenticate():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            raise Exception("Renew Credentials")
-            # flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, SCOPES)
-            # creds = flow.run_local_server(port=0)
+            # raise Exception("Renew Credentials")
+            flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, SCOPES)
+            creds = flow.run_local_server(port=0)
         # save the credentials for the next run
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
@@ -129,7 +139,7 @@ def youtube_authenticate():
 
 
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
+scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=30)
 # scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
 scheduler.start()
 
