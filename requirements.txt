@@ -10,3 +10,4 @@ pyopenssl
 python-dotenv
 APScheduler
 gunicorn
+oauth2client
