@@ -1,6 +1,7 @@
 # Author - Uma Abu
 # Description - This file contains the main application code for the Flask app
 
+import httplib2
 import flask
 from flask import send_file
 import requests
@@ -9,10 +10,17 @@ import urllib.parse as p
 import config
 import os, pickle
 from PIL import Image, ImageFont, ImageDraw 
+from oauth2client.client import flow_from_clientsecrets
+from apiclient.discovery import build
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apscheduler.schedulers.background import BackgroundScheduler
+from oauth2client.tools import argparser, run_flow
+from oauth2client.file import Storage
+import httplib2
+import os
+import sys
 
 app = flask.Flask(__name__)
 app.config.from_object(config.Config)
@@ -25,6 +33,11 @@ YOUTUBE_VIDEO_ID = app.config['YOUTUBE_VIDEO_ID']
 
 GENERATED_THUMBNAIL_FILE_NAME = "generated_thumbnail.png"
 
+YOUTUBE_READ_WRITE_SCOPE = "https://www.googleapis.com/auth/youtube"
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
+MISSING_CLIENT_SECRETS_MESSAGE = ""
+
 @app.route('/up')
 def hello():
     return "Hello World! Service is Up and Running!"
@@ -35,8 +48,17 @@ def sendCurrentImage():
 
 @app.route('/authenticate')
 def authenticate():
-    youtube = youtube_authenticate()
-    return "Authenticated"
+  args = argparser.parse_args()
+  youtube = get_authenticated_service(args)
+  # youtube = youtube_authenticate()
+  return "Authenticated"
+
+@app.route('/oauth2callback')
+def authenticate():
+  args = argparser.parse_args()
+  youtube = get_authenticated_service(args)
+  # youtube = youtube_authenticate()
+  return "Authenticated"
 
 @app.route('/adhoc')
 def run_update_method():
@@ -117,30 +139,43 @@ def update_view_count_and_thumbnail():
   return update_responses
 
 
-def youtube_authenticate():
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-    api_service_name = "youtube"
-    api_version = "v3"
-    creds = None
-    # the file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first time
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
-            creds = pickle.load(token)
-    # if there are no (valid) credentials availablle, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            # raise Exception("Renew Credentials")
-            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-            creds = flow.run_local_server(port=0)
-        # save the credentials for the next run
-        with open("token.pickle", "wb") as token:
-            pickle.dump(creds, token)
+# def youtube_authenticate():
+#     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+#     api_service_name = "youtube"
+#     api_version = "v3"
+#     creds = None
+#     # the file token.pickle stores the user's access and refresh tokens, and is
+#     # created automatically when the authorization flow completes for the first time
+#     if os.path.exists("token.pickle"):
+#         with open("token.pickle", "rb") as token:
+#             creds = pickle.load(token)
+#     # if there are no (valid) credentials availablle, let the user log in.
+#     if not creds or not creds.valid:
+#         if creds and creds.expired and creds.refresh_token:
+#             creds.refresh(Request())
+#         else:
+#             # raise Exception("Renew Credentials")
+#             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+#             creds = flow.run_local_server(port=0)
+#         # save the credentials for the next run
+#         with open("token.pickle", "wb") as token:
+#             pickle.dump(creds, token)
 
-    return build(api_service_name, api_version, credentials=creds)
+#     return build(api_service_name, api_version, credentials=creds)
 
+def get_authenticated_service(args):
+  flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
+    scope=YOUTUBE_READ_WRITE_SCOPE,
+    message="Client secrets file is missing")
+
+  storage = Storage("%s-oauth2.json" % sys.argv[0])
+  credentials = storage.get()
+
+  if credentials is None or credentials.invalid:
+    credentials = run_flow(flow, storage, args)
+
+  return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
+    http=credentials.authorize(httplib2.Http()))
 
 
 scheduler = BackgroundScheduler(daemon=True)
@@ -156,5 +191,5 @@ if __name__ == '__main__':
 
   # Specify a hostname and port that are set as a valid redirect URI
   # for your API project in the Google API Console.
-  app.run('localhost', 8080, debug=True, ssl_context='adhoc')
+  app.run('localhost', 5000, debug=True, ssl_context='adhoc')
   # app.run(ssl_context='adhoc')

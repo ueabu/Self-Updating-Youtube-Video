@@ -70,3 +70,4 @@ antenv
 credentials.json
 .DS_Store
 google-credentials.json
+*.json
