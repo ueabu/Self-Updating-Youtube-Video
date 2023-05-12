@@ -34,8 +34,13 @@ def sendCurrentImage():
 
 @app.route('/authenticate')
 def authenticate():
-    youtube = youtube_authenticate();
+    youtube = youtube_authenticate()
     return "Authenticated"
+
+@app.route('/adhoc')
+def run_update_method():
+    update_view_count_and_thumbnail()
+    return "Updated"
 
 # Gets the video view count from youtube
 def get_video_view_count():
