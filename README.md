@@ -27,9 +27,11 @@ When the user initially authenticates and grants permission, a .pickle with the 
 
 To Setup, you will need a google console account to get the API Key and create a desktop application for OAuth.
 
-1. Create a .env file and add your API_KEY from the google console.  For more information, see : https://developers.google.com/youtube/v3/getting-started
+1. Create a .env file and add your API_KEY from the google console.  Also add the Youtube video ID you want this to work for! For more information, see : https://developers.google.com/youtube/v3/getting-started
 
 `API_KEY = ""`
+`YOUTUBE_VIDEO_ID = ""`
+
 
 2. Download the credential file gotten after creating and registering a desktop application on the google console. Make sure the credential file is called `google-credentials.json`.
 

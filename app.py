@@ -21,7 +21,8 @@ CLIENT_SECRETS_FILE = "google-credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
-YOUTUBE_VIDEO_ID = "fLlQ2w1gOEM"
+YOUTUBE_VIDEO_ID = app.config['YOUTUBE_VIDEO_ID']
+
 GENERATED_THUMBNAIL_FILE_NAME = "generated_thumbnail.png"
 
 @app.route('/up')
