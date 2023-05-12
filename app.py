@@ -17,7 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = flask.Flask(__name__)
 app.config.from_object(config.Config)
 
-CLIENT_SECRETS_FILE = "credentials.json"
+CLIENT_SECRETS_FILE = "google_credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
@@ -120,7 +120,6 @@ def youtube_authenticate():
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
     api_service_name = "youtube"
     api_version = "v3"
-    client_secrets_file = "credentials.json"
     creds = None
     # the file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first time
@@ -133,7 +132,7 @@ def youtube_authenticate():
             creds.refresh(Request())
         else:
             # raise Exception("Renew Credentials")
-            flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
         # save the credentials for the next run
         with open("token.pickle", "wb") as token:
