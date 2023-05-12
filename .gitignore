@@ -65,7 +65,7 @@ node_modules/
 # dotenv environment variables file
 .env
 antenv
-# *.pickle
+*.pickle
 .vscode
 credentials.json
 .DS_Store
