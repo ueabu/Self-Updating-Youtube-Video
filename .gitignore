@@ -69,3 +69,4 @@ antenv
 .vscode
 credentials.json
 .DS_Store
+google-credentials.json

@@ -31,7 +31,7 @@ To Setup, you will need a google console account to get the API Key and create a
 
 `API_KEY = ""`
 
-2. Download the credential file gotten after creating and registering a desktop application on the google console. Make sure the credential file is called `credentials.json`.
+2. Download the credential file gotten after creating and registering a desktop application on the google console. Make sure the credential file is called `google-credentials.json`.
 
 3. Update `YOUTUBE_VIDEO_ID` with the video you want to update
 

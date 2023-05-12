@@ -17,7 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = flask.Flask(__name__)
 app.config.from_object(config.Config)
 
-CLIENT_SECRETS_FILE = "google_credentials.json"
+CLIENT_SECRETS_FILE = "google-credentials.json"
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
