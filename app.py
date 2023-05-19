@@ -31,6 +31,8 @@ SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 YOUTUBE_VIDEO_ID = app.config['YOUTUBE_VIDEO_ID']
+SCHEDULER_TIMER = app.config['SCHEDULER_TIMER']
+
 
 GENERATED_THUMBNAIL_FILE_NAME = "generated_thumbnail.png"
 
@@ -157,9 +159,10 @@ def youtube_authenticate():
 
     return build(api_service_name, api_version, credentials=creds)
 
+print('Starting Scheduler, scheduled to run every,', SCHEDULER_TIMER)
 
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
+scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=int(SCHEDULER_TIMER))
 # scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
 scheduler.start()
 
