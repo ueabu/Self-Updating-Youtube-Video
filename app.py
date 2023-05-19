@@ -128,7 +128,7 @@ def update_view_count_and_thumbnail():
   update_responses = {}
   update_responses['title_update_response'] = title_update_response
   update_responses['thumbnail_update_response'] = thumbnail_update_response
-  print(update_responses)
+  # print(update_responses)
   print("Successfully Updated Video Title and Thumbnail")
   print("==================================")
   return update_responses
@@ -159,8 +159,8 @@ def youtube_authenticate():
 
 
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=2)
-# scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=5)
+scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=60)
+# scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
 scheduler.start()
 
 if __name__ == '__main__':
