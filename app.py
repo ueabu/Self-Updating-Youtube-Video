@@ -37,7 +37,6 @@ GENERATED_THUMBNAIL_FILE_NAME = "generated_thumbnail.png"
 YOUTUBE_READ_WRITE_SCOPE = "https://www.googleapis.com/auth/youtube"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
-MISSING_CLIENT_SECRETS_MESSAGE = ""
 
 @app.route('/up')
 def hello():
@@ -54,12 +53,6 @@ def authenticate():
   youtube = youtube_authenticate()
   return "Authenticated"
 
-# @app.route('/oauth2callback')
-# def callback():
-#   args = argparser.parse_args()
-#   # youtube = get_authenticated_service(args)
-#   youtube = youtube_authenticate()
-#   return "Authenticated"
 
 @app.route('/adhoc')
 def run_update_method():
@@ -73,21 +66,19 @@ def get_video_view_count():
     response = requests.get(video_URL)
     json_response = response.json()
     youtube_video_view_count = json_response['items'][0]['statistics']['viewCount']
-    print("Number of views: ", youtube_video_view_count)
-    return youtube_video_view_count
+    formated_youtube_video_view_count = format(int(youtube_video_view_count), ',d')
+    print("Number of views: ", formated_youtube_video_view_count)
+    return formated_youtube_video_view_count
 
 #Generates a new thumbnail with the updated view count
-def generate_new_thumbnail(no_of_views):
+def generate_new_thumbnail(formated_youtube_video_view_count):
     print('Generating new thumbnail')
-    view_count = no_of_views
-    formated_view_count = format(int(view_count), ',d')
-    views_count_string = str(formated_view_count) # Text to be written
     thumbnail_template = Image.open("thumbnail_template.png") # Open the template
     image_width, image_height = thumbnail_template.size # Get the size of the template
     title_font = ImageFont.truetype('font/peace-sans.regular.ttf', 180) # Load the font
     image_editable = ImageDraw.Draw(thumbnail_template) # Make the image editable
-    _, _, textbox_width, textbox_height = image_editable.textbbox((0, 0), views_count_string, font=title_font)
-    image_editable.text(((image_width-textbox_width)/2, 75), views_count_string, (255, 255, 255), font=title_font)# Draw the text
+    _, _, textbox_width, textbox_height = image_editable.textbbox((0, 0), formated_youtube_video_view_count, font=title_font)
+    image_editable.text(((image_width-textbox_width)/2, 75), formated_youtube_video_view_count, (255, 255, 255), font=title_font)# Draw the text
     thumbnail_template.save(GENERATED_THUMBNAIL_FILE_NAME) # Save the image
     print('Thumbnail generated successfully')
 
@@ -100,11 +91,11 @@ def get_video_description():
 
 def update_view_count_and_thumbnail():
   print("==================================")
-  view_count = get_video_view_count()
-  generate_new_thumbnail(view_count)
+  formated_view_count = get_video_view_count()
+  generate_new_thumbnail(formated_view_count)
   print("Updating Video Title and Thumbnail")
   youtube = youtube_authenticate()
-  print(f"This Video Has {view_count} views",)
+  print(f"This Video Will Have {formated_view_count} views",)
   
   title_update_request = youtube.videos().update(
       part="snippet",
@@ -112,33 +103,35 @@ def update_view_count_and_thumbnail():
         "id": YOUTUBE_VIDEO_ID,
         "snippet": {
           "categoryId": "27",
-          "title": f"This Video Has {view_count} views",
+          "tags": [
+             "tom scott", 
+             "tomscott", 
+             "api", 
+             "coding", 
+             "application programming interface", 
+             "data api"
+          ],
+          "title": f"This Video Will Have {formated_view_count} Views",
           "description": get_video_description(),
         }
       })
   
-  # title_update_response = title_update_request.execute()
+  title_update_response = title_update_request.execute()
 
-  # thumbnail_update_request = youtube.thumbnails().set(
-  #   videoId=YOUTUBE_VIDEO_ID,
-  #   media_body=MediaFileUpload(GENERATED_THUMBNAIL_FILE_NAME)
-  # )
+  thumbnail_update_request = youtube.thumbnails().set(
+    videoId=YOUTUBE_VIDEO_ID,
+    media_body=MediaFileUpload(GENERATED_THUMBNAIL_FILE_NAME)
+  )
     
-  # thumbnail_update_response = thumbnail_update_request.execute()
+  thumbnail_update_response = thumbnail_update_request.execute()
 
- 
-  # Save credentials back to session in case access token was refreshed.
-  # ACTION ITEM: In a production app, you likely want to save these
-  #              credentials in a persistent database instead.
-  # flask.session['credentials'] = credentials_to_dict(credentials)
   update_responses = {}
-  update_responses['title_update_response'] = 'title_update_response'
-  # update_responses['thumbnail_update_response'] = thumbnail_update_response
+  update_responses['title_update_response'] = title_update_response
+  update_responses['thumbnail_update_response'] = thumbnail_update_response
+  print(update_responses)
   print("Successfully Updated Video Title and Thumbnail")
   print("==================================")
-
   return update_responses
-
 
 def youtube_authenticate():
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -164,24 +157,10 @@ def youtube_authenticate():
 
     return build(api_service_name, api_version, credentials=creds)
 
-# def get_authenticated_service(args):
-#   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-#     scope=YOUTUBE_READ_WRITE_SCOPE,
-#     message="Client secrets file is missing")
-
-#   storage = Storage("%s-oauth2.json" % sys.argv[0])
-#   credentials = storage.get()
-
-#   if credentials is None or credentials.invalid:
-#     credentials = run_flow(flow, storage, args)
-
-#   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-#     http=credentials.authorize(httplib2.Http()))
-
 
 scheduler = BackgroundScheduler(daemon=True)
-scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=30)
-# scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=10)
+scheduler.add_job(update_view_count_and_thumbnail,'interval',minutes=2)
+# scheduler.add_job(update_view_count_and_thumbnail,'interval',seconds=5)
 scheduler.start()
 
 if __name__ == '__main__':
