@@ -1,7 +1,10 @@
 # Self-Updating-Youtube-Video
 A script that updates the title of a youtube video and the thumbnail with the number of views the video has.
 
-Youtube Video: 
+This script has been modified to only fetch the number of views the video has and create a thumbnail with the views it has fetched. 
+The script is a flask API that exposes endpoints a make.com scenerio to do the updating. 
+
+Youtube Video: https://youtu.be/G9uatzCRh8U
 
 ## Table of Contents
 1. Files and Folders
@@ -9,34 +12,36 @@ Youtube Video:
 3. Setting Up
 
 ## Files and Folders
-1. app.py contains the code and logic that runs the entire application. 
+1. app.py contains the code and logic that runs the entire application. It houses the endpoints, code for fetching the number of views and code for generating the thumbnail.
 2. config.py contains the config for the app pulled from enviornment variables in a .env file.
-2. thumbnailgenerator.py is a stand alone python script that takes generates the thumbnail from the template photo. 
-3. thumbnail_template.png is the template photo that the generated thumbnail is built from. 
-4. requirements.txt contains a list of requirements needed for the application to run.
+3. tests/unit_tests.py are unit tests for the code.
+4. thumbnail_template.png is the template photo that the generated thumbnail is built from. 
+5. requirements.txt contains a list of requirements needed for the application to run.
 6. videodescription.txt contains the video description. It is updated along with the title and thumbnail.
 
 ## Logic
-The application runs as a flask app with a scheduler setup to call the update method every hour!
+The application runs as a web server (flask app). It exposes a few endpoints explained below
 
-The number of views the video has has fetched from the Youtube API using an API Key. The code also authenticates with the youtube API and recieves authorization from the user. After that happens, a thumbnail is generated using the number of views video has using the PIL (Pillow Library). That thumbnail is then uploaded along with the title back to youtube!
+/up - An endpoint to test if the service is up and running
+/no_of_views - Returns the number of views from the youtube API and generates a new thumbnail with the latest number of views
+/currentimage - Returns the current image with the most up to date thumbnail. Should ideally be called after /no_of_views
 
-When the user initially authenticates and grants permission, a .pickle with the access and referesh tokens are generated and stored and are in future calls.
+The `/no_of_views` endpoint will be called 2 times a day from a make scenario. This call will query the youtube api for the number of views the video has, generate a new thumbnail with the new number and return the number of views the video has.
+The `/currentimage` will be called immediately after and will return the new generated image. Make.com will then handle all the updating. 
 
 ## Setting Up.
 
-To Setup, you will need a google console account to get the API Key and create a desktop application for OAuth.
+To Setup, you will need a google console account to get the API Key.
 
 1. Create a .env file and add your API_KEY from the google console.  Also add the Youtube video ID you want this to work for! For more information, see : https://developers.google.com/youtube/v3/getting-started
 
 `API_KEY = ""`
 `YOUTUBE_VIDEO_ID = ""`
 
+2. Update `YOUTUBE_VIDEO_ID` with the video you want to update
 
-2. Download the credential file gotten after creating and registering a desktop application on the google console. Make sure the credential file is called `google-credentials.json`.
+## Deployment
 
-3. Update `YOUTUBE_VIDEO_ID` with the video you want to update
-
-3. Change the schedule delay to 10 seconds and run the flask application, you should be prompted to login after 10 seconds. After logging in, the function should run and a thumbnail should be generated. 
+The service is deployed to fly.io as a flask app. See https://fly.io/docs/python/frameworks/flask/ for more.
 
 Happy Coding!

@@ -1,13 +1,5 @@
 flask
-youtube-data-api
-google-api-python-client 
-google-auth-httplib2 
-google-auth-oauthlib
 requests
-urllib3<2
 pillow
-pyopenssl
 python-dotenv
-APScheduler
-gunicorn
-oauth2client
+pytest
