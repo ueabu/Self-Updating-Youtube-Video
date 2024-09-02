@@ -1,4 +1,6 @@
-Here’s my take at replicating a video created by @TomScott!
+Here’s my take at replicating a video created by @TomScott, except I add my own unique take on it
+
+Checkout my courses and coaching program: https://prodev.umacodes.com
 
 Code: https://github.com/ueabu/Self-Updating-Youtube-Video 
 
