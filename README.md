@@ -10,6 +10,8 @@ Youtube Video: https://youtu.be/G9uatzCRh8U
 1. Files and Folders
 2. Logic
 3. Setting Up
+4. Deployment
+5. History of Major Changes
 
 ## Files and Folders
 1. app.py contains the code and logic that runs the entire application. It houses the endpoints, code for fetching the number of views and code for generating the thumbnail.
@@ -42,6 +44,23 @@ To Setup, you will need a google console account to get the API Key.
 
 ## Deployment
 
-The service is deployed to fly.io as a flask app. See https://fly.io/docs/python/frameworks/flask/ for more.
+The service is deployed to [fly.io](https://fly.io) as a Flask app, managed via the `flyctl` CLI. See https://fly.io/docs/python/frameworks/flask/ for more.
+
+Deploys are run with:
+
+```bash
+flyctl deploy
+```
+
+The `fly.toml` file in the project root holds the app configuration (region, ports, VM size, etc.), and the `Dockerfile` defines the runtime image used by Fly Machines.
+
+## History of Major Changes
+
+A running log of the meaningful decisions and refactors made to this project, newest first.
+
+- **Switched deployment to `flyctl` / fly.io** _(latest)_ — Moved the hosting of the Flask app to fly.io, deployed via the `flyctl` CLI. A `fly.toml` and `Dockerfile` were added so the app runs on Fly Machines instead of the previous host. This is the current source of truth for how the service is deployed.
+- **Scheduler tuned to hourly updates** — The update cadence was changed so the view count / thumbnail refresh runs hourly, instead of the earlier (less frequent) schedule.
+- **Refactored to a thin API; updating handled by make.com** — The script was simplified to expose only the endpoints needed to (a) fetch the current YouTube view count and (b) generate a thumbnail with that view count baked into it. The actual updating of the YouTube video (title, thumbnail, description) is now orchestrated by a [make.com](https://www.make.com) scenario that calls these endpoints on a schedule.
+- **Initial implementation** — A Flask app that pulled view counts from the YouTube Data API and updated the video's title and thumbnail directly. See the companion video walkthrough: https://youtu.be/G9uatzCRh8U.
 
 Happy Coding!
